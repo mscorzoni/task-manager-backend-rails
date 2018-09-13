@@ -88,13 +88,13 @@ document.addEventListener( "DOMContentLoaded", () => {
             }
           },
           updateTask: function (event, id) {
-              let task = this.tasks.find(item => item.id == id);
-              if (task) {
-                  task.name = this.task.name;
-                  task.description = this.task.description;
-                  task.completed = this.task.completed;
-                  this.message = `Task ${id} updated.`;
-              }
+             event.stopImmediatePropagation();
+
+             Api.updateTask(this.task).then(function(response){
+              app.listTasks();
+              app.clear();
+              app.message = `Task ${response.id} updated.`;
+             })
           },
           deleteTask: function (event, id) {
               event.stopImmediatePropagation();
