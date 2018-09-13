@@ -1,5 +1,7 @@
 import Vue from 'vue';
 
+const Api = require('./api');
+
 document.addEventListener( "DOMContentLoaded", () => { 
 
   var app = new Vue({
@@ -27,12 +29,7 @@ document.addEventListener( "DOMContentLoaded", () => {
           }
       },
       data: {
-          tasks: [
-              { id: 1, name: 'Todo 1', description: 'This is a todo', completed: false },
-              { id: 2, name: 'Todo 2', description: 'This is another todo', completed: true },
-              { id: 3, name: 'Three', description: 'This is a complete todo', completed: true },
-              { id: 4, name: 'Todo Four', description: 'This is another complete todo', completed: true },
-          ],
+          tasks: [],
           task: {},
           message: '',
           action: 'create'
@@ -49,6 +46,11 @@ document.addEventListener( "DOMContentLoaded", () => {
           }
       },
       methods: {
+          listTasks: function() {
+            Api.listTasks().then(function(response){
+              app.tasks = response;
+            })
+          },
           clear: function () {
             this.task = {};
             this.action = 'create';
@@ -68,10 +70,12 @@ document.addEventListener( "DOMContentLoaded", () => {
               }  else {
                   this.task.completed = true;
               }
-              let taskId = this.nextId;
-              this.task.id = taskId;
-              this.tasks.push(this.task);
-              this.message = `Task ${taskId} created.`;
+
+              Api.createTask(this.task).then(function(response){
+                app.listTasks();
+                app.clear();
+                app.message = `Task ${response.id} created.`
+              })
           },
           editTask: function (event, id) {
             this.action = 'edit';
@@ -101,7 +105,9 @@ document.addEventListener( "DOMContentLoaded", () => {
               }
               
           }
-      }
+      },
+
+      beforeMount() { this.listTasks() }
   })
 
 });
